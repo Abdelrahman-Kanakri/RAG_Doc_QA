@@ -2,7 +2,7 @@ langchain
 langchain-community
 langchain-openrouter
 langchain-groq
-langchain-mistral
+langchain-mistralai
 langchain-chroma
 chromadb
 fastapi
