@@ -1,3 +1,7 @@
 # desktop.ini
 .directory
 graphify-out/
+
+
+# Environment variables
+.env
