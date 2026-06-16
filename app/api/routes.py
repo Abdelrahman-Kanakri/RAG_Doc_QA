@@ -3,11 +3,9 @@ import shutil
 
 from app.generation.answerer import generate_answer
 from app.retrieval.vectorstore import init_vectorStore, add_chunks, view_collection
-from app.retrieval.multiquery import multiquery_retrieve
-from app.ingestion.loaders import load_directory, choose_loader
+from app.retrieval.multiquery import multi_query_retrieve
+from app.ingestion.loaders import choose_loader
 from app.ingestion.chunking import split_documents
-
-
 
 
 router = APIRouter()
@@ -66,6 +64,6 @@ async def query_document(query: str):
     retrieved_docs = multi_query_retrieve(query, init_vectorStore())
     response = generate_answer(query, retrieved_docs)
     return { 
-            "answer": response.answer,
-            "sources": response.sources
+            "answer": response["answer"],
+            "sources": response["sources"]
         }

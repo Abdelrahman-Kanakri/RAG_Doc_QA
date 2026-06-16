@@ -65,7 +65,7 @@ def generate_answer(query: str, documents: List[Document]) -> dict:
 #     print(f"Chunk ID: {doc.metadata.get('chunk_id')}, Content: {doc.page_content[:100]}, Score: {doc.metadata.get('score')}")
 
 
-# result = answerer(query, retrieved)
+# result = generate_answer(query, retrieved)
 # print(f"Result: {result}\n\n\n\n\n")
 
 
