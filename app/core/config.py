@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     )
     SIMILARITY_THRESHOLD: float = Field(
         description = "Threshold for similarity search.",
-        default = 0.7
+        default = 0.65
     )
     CHUNK_SIZE: int = Field(
         description = "Size of each chunk for processing.",

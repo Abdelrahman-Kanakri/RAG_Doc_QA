@@ -62,9 +62,11 @@ def multi_query_retrieve(query: str, vector_store: Chroma,
         retrieved_docs = vector_store.similarity_search_with_score(variant, k=n_results)
         for doc, score in retrieved_docs: 
             chunk_id = doc.metadata.get("chunk_id")
-            if chunk_id not in seen_ids:
+            similarity_score = 1 - score
+            if chunk_id not in seen_ids and similarity_score >= settings.SIMILARITY_THRESHOLD:
+                # Filter out documents with a score greater than the threshold in the config.py
                 seen_ids.add(chunk_id)
-                doc.metadata["score"] = score
+                doc.metadata["score"] = similarity_score
                 list_of_retrieved_docs.append(doc)
                 
     return list_of_retrieved_docs
