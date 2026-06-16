@@ -59,14 +59,21 @@ async def ingest_document(file: UploadFile):
     with open(file_location, "wb") as buffer: 
             shutil.copyfileobj(file.file, buffer)
         
-    # Ingestion Process: Load the document, split it into chunks, and add the chunks to the vector store.
-    file_content = choose_loader(file_location) # This is to validate the file before saving it to disk and ingesting it into the vector store.
-    chunks = split_documents(file_content)
-    # A chunk guard to ensure that the document was split into chunks successfully. If not, raise an HTTPException with a 422 status code and a relevant error message.
-    if not chunks:
-        raise HTTPException(status_code = 422, detail="Failed to split the document into chunks. Please check the file content.")
-    vector_store = init_vectorStore()
-    add_chunks(vector_store, chunks)
+    try:
+        # Ingestion Process: Load the document, split it into chunks, and add the chunks to the vector store.
+        file_content = choose_loader(file_location) # This is to validate the file before saving it to disk and ingesting it into the vector store.
+        chunks = split_documents(file_content)
+        # A chunk guard to ensure that the document was split into chunks successfully. If not, raise an HTTPException with a 422 status code and a relevant error message.
+        if not chunks:
+            raise HTTPException(status_code = 422, detail="Failed to split the document into chunks. Please check the file content.")
+        vector_store = init_vectorStore()
+        add_chunks(vector_store, chunks)
+    except HTTPException:
+            Path(file_location).unlink(missing_ok=True)
+            raise
+    except Exception as e:
+        Path(file_location).unlink(missing_ok=True)
+        raise HTTPException(status_code = 500, detail=f"An error occurred during the ingestion process: {str(e)}")
     
     return {
         "document_id": chunks[0].metadata.get("document_id", "unknown"),
