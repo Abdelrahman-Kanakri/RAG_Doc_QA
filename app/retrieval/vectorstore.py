@@ -1,9 +1,9 @@
 from langchain_chroma import Chroma
 from langchain_mistralai import MistralAIEmbeddings
-from app.core.config import settings
-from typing import List
 from langchain_core.documents import Document
+from typing import List
 
+from app.core.config import settings
 from app.ingestion.loaders import choose_loader
 from app.ingestion.chunking import split_documents
 import os 
