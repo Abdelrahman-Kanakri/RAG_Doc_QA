@@ -4,7 +4,6 @@ from typing import List
 from langchain_core.documents import Document
 from langchain_mistralai import ChatMistralAI
 from langchain_chroma import Chroma
-from app.retrieval.vectorstore import init_vectorStore
 from app.core import settings
 import os
 
