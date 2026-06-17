@@ -4,10 +4,7 @@ from langchain_chroma import Chroma
 from langchain_mistralai import MistralAIEmbeddings
 from langchain_core.documents import Document
 from typing import List
-
 from app.core import settings
-from app.ingestion import choose_loader
-from app.ingestion import split_documents
 import os 
 
 # Set the API KEY for the MistralAI model 
