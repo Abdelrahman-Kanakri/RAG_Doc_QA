@@ -16,7 +16,8 @@ def split_documents(documents: List[Document],
         chunk_overlap=chunk_overlap
     )
     chunked_documents = text_splitter.split_documents(documents)
-    
+    if not chunked_documents:
+        raise ValueError("No chunks were created from the documents. Please check the input documents and the chunking parameters.")
     for idx, chunk in enumerate(chunked_documents):
         # Generate a unique hash for the Chunk content
         chunk_hash = hashlib.md5((chunk.page_content + str(idx)).encode('utf-8')).hexdigest()

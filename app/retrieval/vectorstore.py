@@ -14,10 +14,13 @@ os.environ["MISTRAL_API_KEY"] = settings.MISTRAL_API_KEY
 def init_vectorStore(collection_name: str = settings.COLLECTION_NAME
                     , persist_directory: str = settings.VECTOR_DATABASE_PATH) -> Chroma:
     """ Initialize the Chroma vector store. """
-    return Chroma(collection_name = collection_name,
+    # The vector store will be created automatic in the persist_directory if it does not exist.
+    try:
+        return Chroma(collection_name = collection_name,
                 persist_directory = persist_directory, 
                 embedding_function = MistralAIEmbeddings(model= settings.EMBEDDING_MODEL_NAME))
-
+    except Exception as e:
+            raise Exception(f"Failed to initialize vector store — check Mistral API key and ChromaDB path: {e}")
 # Delete the vector store collection if it exists
 def _delete_vectorStore_collection(vectorStore: Chroma) -> None:
     """ Delete the Chroma vector store. """

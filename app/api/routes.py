@@ -4,10 +4,12 @@ import shutil
 from app.generation.answerer import generate_answer
 from app.retrieval.vectorstore import init_vectorStore, add_chunks, view_collection
 from app.retrieval.multiquery import multi_query_retrieve
+from app.core.logging import get_logger
 from app.ingestion.loaders import choose_loader
 from app.ingestion.chunking import split_documents
 from pathlib import Path
 
+logger = get_logger("routes")
 router = APIRouter()
 
 @router.get("/health")
@@ -42,6 +44,9 @@ async def ingest_document(file: UploadFile):
         6. The API returns a response indicating the success of the ingestion process, including the number of chunks created and the document ID.
     
     """
+    logger.info("ingest_started", filename=file.filename)
+    
+    
     # Set the directory path for uploaded files
     DIR_PATH = "data/docs/uploads"
     # Load the document using the appropriate loader
@@ -63,18 +68,21 @@ async def ingest_document(file: UploadFile):
         # Ingestion Process: Load the document, split it into chunks, and add the chunks to the vector store.
         file_content = choose_loader(file_location) # This is to validate the file before saving it to disk and ingesting it into the vector store.
         chunks = split_documents(file_content)
-        # A chunk guard to ensure that the document was split into chunks successfully. If not, raise an HTTPException with a 422 status code and a relevant error message.
+        # A chunk guard to ensure that the document was split into chunks successfully. If not which means contains unwanted content such images, raise an HTTPException with a 422 status code and a relevant error message.
         if not chunks:
+            logger.error("ingest_failed", filename=file.filename, error="Failed to split the document into chunks. Please check the file content.")
             raise HTTPException(status_code = 422, detail="Failed to split the document into chunks. Please check the file content.")
         vector_store = init_vectorStore()
         add_chunks(vector_store, chunks)
     except HTTPException:
-            Path(file_location).unlink(missing_ok=True)
-            raise
+        Path(file_location).unlink(missing_ok=True)
+        raise
     except Exception as e:
+        logger.error("ingest_failed", filename=file.filename, error=str(e))
         Path(file_location).unlink(missing_ok=True)
         raise HTTPException(status_code = 500, detail=f"An error occurred during the ingestion process: {str(e)}")
     
+    logger.info("ingest_complete", filename=file.filename, chunks=len(chunks))
     return {
         "document_id": chunks[0].metadata.get("document_id", "unknown"),
         "chunks": len(chunks),
@@ -84,12 +92,18 @@ async def ingest_document(file: UploadFile):
 @router.post("/query")
 async def query_document(query: str):
     """ Query the knowledge base with a user query and retrieve relevant documents. """ 
+    logger.info("query_started", query=query)
+    
     retrieved_docs = multi_query_retrieve(query, init_vectorStore())
     
+
     # Check if there is a relevant docs for the given query. If not, raise an HTTPException with a 404 status code and a relevant error message.
     if not retrieved_docs:
+        logger.error("query_failed", query=query, error="No relevant documents found for the given query.")
         raise HTTPException(status_code = 404, detail="No relevant documents found for the given query.")
     response = generate_answer(query, retrieved_docs)
+    
+    logger.info("query_complete", query=query, chunks=len(retrieved_docs))
     return { 
             "answer": response["answer"],
             "sources": response["sources"]

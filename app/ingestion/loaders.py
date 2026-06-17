@@ -1,23 +1,34 @@
 from langchain_community.document_loaders import PyPDFLoader
+from pypdf import PdfReader
+from pypdf.errors import PdfReadError 
 from langchain_core.documents import Document
 from pathlib import Path
 from typing import List
 
 def load_pdf(file_path: str) -> list:
     """ Load a PDF file and return a list of documents. """
-    # Initialize the PyPDFLoader with the file path and extraction mode
-    loader = PyPDFLoader(
+    try: 
+        reader = PdfReader(file_path)    
+        if reader.is_encrypted():
+            raise PdfReadError("PDF is encrypted and cannot be read.")
+        
+        # Initialize the PyPDFLoader with the file path and extraction mode
+        loader = PyPDFLoader(
         file_path=file_path,
         mode = 'page',
-        extraction_mode = 'plain',
-    )
-    content_pdf = loader.load()
+        extraction_mode = 'plain')
+        content_pdf = loader.load()
+    except PdfReadError as e:
+        raise PdfReadError(f"Error loading PDF: {e}")
+    except Exception as e:
+        raise Exception(f"An unexpected error occurred while loading the PDF: {e}")
     return content_pdf 
 
 def load_markdown(file_path: str) -> list:
     """ Load a markdown file and return a list of documents."""
-    
     # Read the content of the markdown file
+    if not Path(file_path).exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
     doc = Path(file_path).read_text()
     
     return [Document(page_content=doc, metadata={"source": file_path})]
@@ -38,14 +49,19 @@ def load_directory(root_path: str = "data/docs/") -> List[Document]:
     DATA_DIR = PROJECT_ROOT / root_path
     
     # print(f"Scanning: {DATA_DIR}, exists: {DATA_DIR.exists()}")
+    if not DATA_DIR.exists():
+        raise FileNotFoundError(f"Data directory not found: {DATA_DIR}")
     
     data_paths = [subdir for subdir in Path(DATA_DIR).rglob("*") if subdir.is_file()]
+    # Even the if there is DATA_DIR exists,
+    # there might not be any files in the directory, 
+    # so we need to check if there are any files in the directory.
+    # If not, raise a FileNotFoundError with a relevant error message.
+    if not data_paths:
+        raise FileNotFoundError(f"No files found in the data directory: {DATA_DIR}")
     documents = []
     for path in data_paths: 
-        try: 
             documents.extend(choose_loader(str(path)))
             print(f"Loaded {len(documents)} documents from {path}")
-        except ValueError as e:
-            print(f"Skipping {path}: {e}")
     return documents
 
