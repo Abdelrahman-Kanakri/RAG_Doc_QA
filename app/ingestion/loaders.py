@@ -1,3 +1,5 @@
+"""Document loaders for PDF and Markdown files, with a dispatcher that selects the right loader by extension."""
+
 from langchain_community.document_loaders import PyPDFLoader
 from pypdf import PdfReader
 from pypdf.errors import PdfReadError 

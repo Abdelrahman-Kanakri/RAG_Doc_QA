@@ -1,5 +1,7 @@
+"""FastAPI application entry point — creates the app instance and mounts the API router."""
+
 from fastapi import FastAPI
-from app.api.routes import router
+from app.api import router
 import uvicorn
 
 

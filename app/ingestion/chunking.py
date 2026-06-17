@@ -1,9 +1,11 @@
+"""Splits documents into overlapping chunks and enriches each chunk with a unique hash ID and source metadata."""
+
 import hashlib
 from pathlib import Path
 from typing import List
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from app.core.config import settings
+from app.core import settings
 
 
 def split_documents(documents: List[Document],

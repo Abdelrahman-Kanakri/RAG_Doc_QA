@@ -1,18 +1,19 @@
+"""API route handlers for health check, document ingestion, and RAG querying."""
+
 from fastapi import APIRouter, UploadFile, HTTPException
 import shutil
 
-from app.generation.answerer import generate_answer
-from app.retrieval.vectorstore import init_vectorStore, add_chunks, view_collection
-from app.retrieval.multiquery import multi_query_retrieve
-from app.core.logging import get_logger
-from app.ingestion.loaders import choose_loader
-from app.ingestion.chunking import split_documents
+from app.generation import generate_answer
+from app.retrieval import init_vectorStore, add_chunks, view_collection
+from app.retrieval import multi_query_retrieve
+from app.core import get_logger
+from app.ingestion import choose_loader, split_documents
+from app.schemas import GetHealth, ResponseIngest, ResponseQuery
 from pathlib import Path
-
 logger = get_logger("routes")
 router = APIRouter()
 
-@router.get("/health")
+@router.get("/health", response_model=GetHealth)
 async def check_health():
     """ Check the health of the API and the connection to the vector store. """
     try:
@@ -25,7 +26,7 @@ async def check_health():
         "status": "healthy",
         "vector_store": vector_store_status}
 
-@router.post("/ingest")
+@router.post("/ingest", response_model=ResponseIngest)
 async def ingest_document(file: UploadFile):
     """  Ingest a document by uploading a file, splitting it into chunks, and adding the chunks to the vector store.
     
@@ -89,7 +90,7 @@ async def ingest_document(file: UploadFile):
         "message": f"Document '{file.filename}' ingested successfully with {len(chunks)} chunks."
     }
 
-@router.post("/query")
+@router.post("/query", response_model=ResponseQuery)
 async def query_document(query: str):
     """ Query the knowledge base with a user query and retrieve relevant documents. """ 
     logger.info("query_started", query=query)

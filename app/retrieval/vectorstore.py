@@ -1,11 +1,13 @@
+"""ChromaDB vector store helpers — initialization, chunk ingestion, and collection inspection."""
+
 from langchain_chroma import Chroma
 from langchain_mistralai import MistralAIEmbeddings
 from langchain_core.documents import Document
 from typing import List
 
-from app.core.config import settings
-from app.ingestion.loaders import choose_loader
-from app.ingestion.chunking import split_documents
+from app.core import settings
+from app.ingestion import choose_loader
+from app.ingestion import split_documents
 import os 
 
 # Set the API KEY for the MistralAI model 

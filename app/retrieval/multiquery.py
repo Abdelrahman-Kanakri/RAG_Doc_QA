@@ -1,9 +1,11 @@
+"""Multi-query retrieval — expands a user query into N variants via LLM, retrieves from ChromaDB, and deduplicates results above the similarity threshold."""
+
 from typing import List
 from langchain_core.documents import Document
 from langchain_mistralai import ChatMistralAI
-from app.retrieval.vectorstore import init_vectorStore
 from langchain_chroma import Chroma
-from app.core.config import settings
+from app.retrieval import init_vectorStore
+from app.core import settings
 import os
 
 

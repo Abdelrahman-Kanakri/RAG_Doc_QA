@@ -1,9 +1,11 @@
+"""Generates answers from retrieved document chunks using a Mistral LLM, returning the answer text and source metadata."""
+
 import os
 from typing import List
 from langchain_core.documents import Document
 from langchain_mistralai import ChatMistralAI
 
-from app.core.config import settings
+from app.core import settings
 
 # Set the Mistral AI API key in the environment variables
 os.environ["MISTRAL_API_KEY"] = settings.MISTRAL_API_KEY
