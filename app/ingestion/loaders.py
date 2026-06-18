@@ -11,7 +11,7 @@ def load_pdf(file_path: str) -> list:
     """ Load a PDF file and return a list of documents. """
     try: 
         reader = PdfReader(file_path)    
-        if reader.is_encrypted():
+        if reader.is_encrypted:
             raise PdfReadError("PDF is encrypted and cannot be read.")
         
         # Initialize the PyPDFLoader with the file path and extraction mode
