@@ -2,6 +2,7 @@
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
+import os 
 
 class Settings(BaseSettings):
     """Typed application settings, loaded from ``.env`` at import time.
@@ -100,3 +101,7 @@ class Settings(BaseSettings):
     )
 
 settings = Settings()
+os.environ["LANGSMITH_API_KEY"] = settings.LANGSMITH_API_KEY
+os.environ["LANGSMITH_ENDPOINT"] = settings.LANGSMITH_ENDPOINT
+os.environ["LANGSMITH_TRACING"] = settings.LANGSMITH_TRACING
+os.environ["LANGSMITH_PROJECT"] = settings.LANGSMITH_PROJECT

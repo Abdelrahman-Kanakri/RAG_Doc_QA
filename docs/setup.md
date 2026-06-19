@@ -106,3 +106,45 @@ uv run pytest
 ```
 
 Fully mocked — no network, Chroma, or model calls.
+
+## Deployment (Docker)
+
+The service is containerized with a `uv`-based `Dockerfile` and orchestrated by
+`docker-compose.yml`. Secrets come from the same `.env` (injected at runtime via
+`env_file`), and a named volume persists the Chroma store.
+
+```bash
+# Build the image and start the service in the background
+docker compose up -d --build
+
+# Tail logs / check status
+docker compose logs -f
+docker compose ps            # waits for the healthcheck to report "healthy"
+
+# Verify
+curl http://localhost:8000/api/v1/health
+```
+
+> **Run Docker from a real host terminal, not the Flatpak VS Code terminal** —
+> the sandboxed terminal cannot see the host `docker` CLI (`command not found`),
+> even when Docker is installed and running.
+
+The first build pulls the full dependency tree from `uv.lock` (including the
+local-embedding stack used by eval), so it is large and slow on the first run;
+later builds reuse the cached dependency layer.
+
+### Verifying persistence
+
+The `chroma_data` volume is what makes ingested vectors survive a restart. To
+prove it end-to-end:
+
+```bash
+docker compose up -d --build
+curl -F "file=@paper.pdf" http://localhost:8000/api/v1/ingest   # ingest a doc
+docker compose down                                             # stop containers
+docker compose up -d                                            # restart
+curl -X POST "http://localhost:8000/api/v1/query?query=..."     # answer should still work
+```
+
+If the query still finds the document after the restart, persistence is wired
+correctly (volume path matches `VECTOR_DATABASE_PATH`).

@@ -189,13 +189,45 @@ decisions rather than writing code:
    then Pydantic schemas and package `__init__` exports.
 3. **Phase 3 — Evaluation.** RAGAS synthetic test set + RAG-Triad comparison of
    retrieval strategies; HyDE implemented here. See [evaluation.md](evaluation.md).
-4. **Phase 4 — Deployment (roadmap).** See below.
+4. **Phase 4 — Deployment.** Containerization and observability. See
+   [Deployment](#7-deployment) below.
+
+## 7. Deployment
+
+The service ships as a container, defined by three files at the repo root:
+
+- **`Dockerfile`** — based on the official `uv` image
+  (`ghcr.io/astral-sh/uv:python3.12-bookworm-slim`). Dependencies install from
+  `uv.lock` with `uv sync --frozen` in a layer *before* the source is copied, so
+  editing `app/` doesn't re-resolve the (large) dependency tree. The app package
+  installs in a second layer. The container runs `uvicorn app.main:app --host
+  0.0.0.0 --port 8000` from the CLI — binding `0.0.0.0` rather than relying on the
+  `__main__` block, so the host/port live in the image, not the code.
+- **`docker-compose.yml`** — publishes port 8000, injects secrets via
+  `env_file: .env` (so keys are never baked into an image layer), mounts a named
+  volume `chroma_data` at `/app/data/chroma` (matching `VECTOR_DATABASE_PATH`) for
+  vector persistence across restarts, and health-checks `GET /api/v1/health` with
+  a Python probe (the slim image has no `curl`).
+- **`.dockerignore`** — excludes `.venv/`, `models/` (the 1.3 GB local eval
+  weights), `data/`, `__pycache__/`, `.git/`, and `.env` from the build context.
+
+**Observability (LangSmith).** Tracing is driven entirely by `LANGSMITH_*`
+environment variables, which LangChain reads from `os.environ`. Because
+`pydantic-settings` loads `.env` into the `Settings` *object* (not into the
+process environment), `config.py` bridges the four `LANGSMITH_*` values into
+`os.environ` right after `settings = Settings()` — so local runs trace too. In
+the container the same vars arrive via compose `env_file`, so tracing works there
+with no extra wiring.
+
+> **Status:** the deployment artifacts are written; the image build and the
+> volume persistence round-trip have not yet been verified end-to-end on the
+> build host. That verification is the only remaining Phase 4 step.
 
 ## Roadmap
 
-- **Dockerize** — FastAPI + ChromaDB via docker-compose.
-- **LangSmith** — full tracing of every retrieval + generation call (settings
-  are wired; instrumentation is the remaining step).
+- **Verify the container** — build the image, confirm `/health` reports
+  `connected`, and prove the `chroma_data` volume survives an ingest →
+  `down` → `up` → query round-trip.
 - **Content-hash `document_id`** — switch from filename to a hash of file bytes
   for true cross-filename deduplication.
 - **Multi-vector / hypothetical-question indexing** — to tighten query-to-chunk

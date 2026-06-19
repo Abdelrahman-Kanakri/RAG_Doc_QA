@@ -11,4 +11,4 @@ app = FastAPI(title = "RAG Document QA", version = "v1.0",
 app.include_router(router, prefix = "/api/v1")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="128.127.0.1", port=8080)
+    uvicorn.run(app, host="127.0.0.1", port=8080)

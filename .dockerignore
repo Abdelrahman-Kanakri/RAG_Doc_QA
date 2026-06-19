@@ -1,0 +1,15 @@
+.venv/
+models/
+data/
+__pycache__/
+**/__pycache__/
+*.pyc
+.git/
+.env
+.env.bak
+.pytest_cache/
+graphify-out/
+eval/results/
+eval/dataset_test/
+docs/
+.vscode/
