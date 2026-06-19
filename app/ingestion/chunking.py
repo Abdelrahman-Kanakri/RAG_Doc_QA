@@ -8,6 +8,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from app.core import settings
 
 
+# ── Chunking ────────────────────────────────────────────────────────────────
 def split_documents(documents: List[Document],
                     chunk_size: int = settings.CHUNK_SIZE,
                     chunk_overlap: int = settings.CHUNK_OVERLAP) -> List[Document]:

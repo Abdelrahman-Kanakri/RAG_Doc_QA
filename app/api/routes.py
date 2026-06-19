@@ -10,9 +10,13 @@ from app.core import get_logger
 from app.ingestion import choose_loader, split_documents
 from app.schemas import GetHealth, ResponseIngest, ResponseQuery
 from pathlib import Path
+
+# ── Router setup ────────────────────────────────────────────────────────────
 logger = get_logger("routes")
+
 router = APIRouter()
 
+# ── Health endpoint ─────────────────────────────────────────────────────────
 @router.get("/health", response_model=GetHealth)
 async def check_health():
     """ Check the health of the API and the connection to the vector store. """
@@ -26,6 +30,7 @@ async def check_health():
         "status": "healthy",
         "vector_store": vector_store_status}
 
+# ── Ingest endpoint ─────────────────────────────────────────────────────────
 @router.post("/ingest", response_model=ResponseIngest)
 async def ingest_document(file: UploadFile):
     """  Ingest a document by uploading a file, splitting it into chunks, and adding the chunks to the vector store.
@@ -90,6 +95,7 @@ async def ingest_document(file: UploadFile):
         "message": f"Document '{file.filename}' ingested successfully with {len(chunks)} chunks."
     }
 
+# ── Query endpoint ──────────────────────────────────────────────────────────
 @router.post("/query", response_model=ResponseQuery)
 async def query_document(query: str):
     """ Query the knowledge base with a user query and retrieve relevant documents. """ 

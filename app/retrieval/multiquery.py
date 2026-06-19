@@ -10,6 +10,7 @@ import os
 
 
 
+# ── Prompt template ─────────────────────────────────────────────────────────
 mqr_instructions = """\
 You are a query expansion module for a RAG retrieval pipeline.
 
@@ -29,13 +30,15 @@ User query: {query}
 """
 
 
+# ── LLM setup ───────────────────────────────────────────────────────────────
 # Set the Mistral AI API key in the environment variables
 os.environ["MISTRAL_API_KEY"] = settings.MISTRAL_API_KEY
 llm = ChatMistralAI(model=settings.MEDIUM_MODEL_NAME,
                     temperature=0)
 
 
-def multi_query_retrieve(query: str, vector_store: Chroma, 
+# ── Retrieval ───────────────────────────────────────────────────────────────
+def multi_query_retrieve(query: str, vector_store: Chroma,
                         n_variants: int = 3, n_results: int = 5) -> List[Document]:
     """  
     Generate multiple semantically similar queries based on the user query and retrieve relevant documents from the knowledge base.
@@ -71,19 +74,3 @@ def multi_query_retrieve(query: str, vector_store: Chroma,
                 list_of_retrieved_docs.append(doc)
                 
     return list_of_retrieved_docs
-
-# # Test Block Only
-# from app.retrieval.vectorstore import init_vectorStore, add_chunks
-# from app.ingestion.loaders import load_directory
-# from app.ingestion.chunking import split_documents
-
-# vector_store = init_vectorStore()
-# #documents = load_directory()
-# docs = load_directory()
-# print(f"Loaded {len(docs)} documents")
-# chunks = split_documents(docs)
-# add_chunks(vector_store, chunks)
-
-# results = multi_query_retrieve("what is backpropagation?", vector_store)
-# for doc in results:
-#     print(f"Chunk ID: {doc.metadata.get('chunk_id')}, Content: {doc.page_content[:100]}...")

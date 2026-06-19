@@ -3,17 +3,20 @@
 from pydantic import BaseModel, Field
 from typing import List
 
+# ── Health ──────────────────────────────────────────────────────────────────
 class GetHealth(BaseModel):
     """ Model for health check response """
     status: str = Field(..., description="Health status of the application")
     vector_store: str = Field(..., description="Connection status of the vector store")
 
+# ── Ingest ──────────────────────────────────────────────────────────────────
 class ResponseIngest(BaseModel):
     """ Model for response after document ingestion """
     document_id: str = Field(..., description="Unique identifier for the ingested document")
     chunks: int = Field(..., description="Number of chunks created from the document")
     message: str = Field(..., description="Status message regarding the ingestion process")
 
+# ── Query ───────────────────────────────────────────────────────────────────
 class Source(BaseModel):
     """ Model for source information used in query response """
     source_name: str = Field(..., description="Name of the source document")

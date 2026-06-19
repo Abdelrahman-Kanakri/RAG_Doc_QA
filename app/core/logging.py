@@ -2,6 +2,7 @@
 
 import structlog
 
+# ── Configuration ───────────────────────────────────────────────────────────
 structlog.configure(
         processors=[
             structlog.contextvars.merge_contextvars,
@@ -17,6 +18,7 @@ structlog.configure(
         cache_logger_on_first_use=True
         )
 
+# ── Logger factory ──────────────────────────────────────────────────────────
 def get_logger(name: str = None) -> structlog.BoundLogger:
     """
     Get a logger instance with the specified name.

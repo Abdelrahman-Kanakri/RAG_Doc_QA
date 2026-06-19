@@ -7,6 +7,7 @@ from langchain_mistralai import ChatMistralAI
 
 from app.core import settings
 
+# ── Configuration & prompt ──────────────────────────────────────────────────
 # Set the Mistral AI API key in the environment variables
 os.environ["MISTRAL_API_KEY"] = settings.MISTRAL_API_KEY
 
@@ -33,8 +34,24 @@ llm = ChatMistralAI(
         temperature=0
     )
 
+# ── Answer generation ───────────────────────────────────────────────────────
 def generate_answer(query: str, documents: List[Document]) -> dict:
-    """ Answer the user query based on the retrieved documents using a large language model."""
+    """Answer the user query, grounded strictly in the retrieved documents.
+
+    The documents are injected into a system prompt that forbids using outside
+    knowledge, so the model either answers from the provided context or says it
+    cannot. Retrieval is the caller's responsibility — this function only
+    generates and assembles citations.
+
+    Args:
+        query (str): The user's question.
+        documents (List[Document]): The retrieved chunks to ground the answer in.
+
+    Returns:
+        dict: ``{"answer": str, "sources": List[dict]}`` where each source carries
+        ``source_name``, ``start_page``, ``chunk_content``, ``chunk_headers`` and
+        ``chunk_score`` for citation.
+    """
     formatted_instructions = LLM_instructions.format(documents = documents, query = query)
     
     # Call the LLM with the formatted instructions 
@@ -51,32 +68,3 @@ def generate_answer(query: str, documents: List[Document]) -> dict:
                 "chunk_score": doc.metadata.get("score", "Unknown")
             } for doc in documents]
         }
-
-
-#  Test Block Only
-# from app.retrieval.vectorstore import init_vectorStore, add_chunks
-# from app.ingestion.loaders import load_directory
-# from app.ingestion.chunking import split_documents
-# from app.retrieval.multiquery import multiquery_retrieve
-
-# vector_store = init_vectorStore()
-# query = "what is backpropagation?"
-# retrieved = multiquery_retrieve(query, vector_store)
-
-# for doc in retrieved:
-#     print(f"Chunk ID: {doc.metadata.get('chunk_id')}, Content: {doc.page_content[:100]}, Score: {doc.metadata.get('score')}")
-
-
-# result = generate_answer(query, retrieved)
-# print(f"Result: {result}\n\n\n\n\n")
-
-
-# print(f"\n\n\n ## Answer: {result['answer']}\n\n\ndetails of sources used:")
-# for doc in result['sources']:
-#     print(
-#         f"source name: {doc['source_name']}\n"
-#         f"start page: {doc['start_page']}\n"
-#         f"chunk headers: {doc['chunk_headers']}\n"
-#         f"chunk score: {doc['chunk_score']}\n"
-#         f"chunk content: {doc['chunk_content'][:100]}\n"
-#     )

@@ -7,6 +7,7 @@ from langchain_core.documents import Document
 from pathlib import Path
 from typing import List
 
+# ── PDF loader ──────────────────────────────────────────────────────────────
 def load_pdf(file_path: str) -> list:
     """ Load a PDF file and return a list of documents. """
     try: 
@@ -26,6 +27,7 @@ def load_pdf(file_path: str) -> list:
         raise Exception(f"An unexpected error occurred while loading the PDF: {e}")
     return content_pdf 
 
+# ── Markdown loader ─────────────────────────────────────────────────────────
 def load_markdown(file_path: str) -> list:
     """ Load a markdown file and return a list of documents."""
     # Read the content of the markdown file
@@ -36,7 +38,8 @@ def load_markdown(file_path: str) -> list:
     return [Document(page_content=doc, metadata={"source": file_path})]
 
 
-def choose_loader(file_path: str)-> list: 
+# ── Dispatcher ──────────────────────────────────────────────────────────────
+def choose_loader(file_path: str)-> list:
     """ Choose the appropriate loader based on the file extension."""
     if file_path.endswith(".pdf"):
         return load_pdf(file_path)
@@ -45,6 +48,7 @@ def choose_loader(file_path: str)-> list:
     else:
         raise ValueError("Unsupported file type. Only PDF and Markdown files are supported.")
 
+# ── Directory loader (batch) ────────────────────────────────────────────────
 def load_directory(root_path: str = "data/docs/") -> List[Document]:
     """ Load all supported files from a directory and return a list of documents. """
     PROJECT_ROOT = Path(__file__).parent.parent.parent
