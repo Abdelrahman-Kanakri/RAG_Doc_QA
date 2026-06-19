@@ -52,9 +52,6 @@ User query: {query}
 """
 prompt_hyde = ChatPromptTemplate.from_template(hyde_instructions, output_parser=StrOutputParser())
 
-# LLM Chain 
-hyde_doc_chain = prompt_hyde | llm | StrOutputParser()
-
 
 # ── Retrieval ───────────────────────────────────────────────────────────────
 def hyde_retrieve(query: str, vector_store: Chroma,
@@ -70,8 +67,14 @@ def hyde_retrieve(query: str, vector_store: Chroma,
     Returns:
         List[Document]: A list of retrieved documents.
     """ 
-    # Generate multiple variants of the user query
-    response = hyde_doc_chain.invoke({"query": query})
+    # Formatted instructions for the HyDE prompt
+    formatted_instructions = prompt_hyde.format(query=query)
+    
+    # Generate a hypothetical document passage using the LLM
+    hypothetical_document = llm.invoke(formatted_instructions)
+    
+    # Strip and clean the content of the hypothetical document
+    response = hypothetical_document.content.strip()
     
     retrieved_docs = vector_store.similarity_search_with_score(response, k=n_results)
     docs = []
