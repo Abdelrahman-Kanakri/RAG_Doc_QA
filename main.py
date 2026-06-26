@@ -1,14 +1,14 @@
-"""Placeholder entry point created by the project scaffold (`uv init`).
+"""FastAPI application entry point — creates the app instance and mounts the API router."""
 
-The real application is the FastAPI app in ``app/main.py`` — run it with
-``uvicorn app.main:app`` (or ``python -m app.main``). This module is kept only as
-the default ``main.py`` and is not part of the service.
-"""
+from fastapi import FastAPI
+from app.api import router
+import uvicorn
 
 
-def main():
-    print("Hello from 1-rag-doc-qa!")
+app = FastAPI(title = "RAG Document QA", version = "v1.0",
+            description = "A Retrieval-Augmented Generation (RAG) system for document question answering, leveraging Mistral AI for query expansion and Chroma for vector storage.")
 
+app.include_router(router, prefix = "/api/v1")
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run(app, host="127.0.0.1", port=8080)

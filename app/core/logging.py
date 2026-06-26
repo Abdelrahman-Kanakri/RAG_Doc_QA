@@ -8,9 +8,10 @@ from structlog.types import FilteringBoundLogger
 
 # ── Configuration ───────────────────────────────────────────────────────────
 logging.basicConfig(level = logging.INFO,
-            filename = "log.log",
+            filename = "logs/log.log",
             filemode = "a",
-            format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            )
 
 structlog.configure(
     processors=[
@@ -44,5 +45,43 @@ def get_logger(name: str | None = None) -> FilteringBoundLogger:
     Returns:
         A bound logger instance configured for JSON output.
     """
-    # Using kwargs forces the name into the structlog processor pipeline
-    return structlog.get_logger(logger_name=name)
+    if name: 
+        # 1. Get the underlying standard library logger
+        stdlib_logger = logging.getLogger(name)
+        
+        # 2. Stop this specific logger from sending duplicates to the main 'log.log' file
+        stdlib_logger.propagate = False
+        
+        # 3. Only add the handler if it hasn't been added yet (prevents duplicate lines)
+        if not stdlib_logger.handlers:
+            # Create a dynamic filename based on the module name (e.g., "app.api.routes.log")
+            handler = logging.FileHandler(f"logs/{name}.log")
+            
+            # Structlog is already creating the JSON, so we just tell the standard 
+            # library to print exactly what structlog gives it (the message).
+            handler.setFormatter(logging.Formatter("%(message)s"))
+            
+            stdlib_logger.addHandler(handler)
+            
+    # 4. Return the structlog wrapper so you can use it normally
+    return structlog.get_logger(name)
+
+
+    if name:
+        # 1. Get the underlying standard library logger
+        stdlib_logger = logging.getLogger(name)
+        
+        # 2. Set the logging level explicitly so INFO logs aren't ignored
+        stdlib_logger.setLevel(logging.INFO)
+        
+        # 3. Stop this specific logger from sending duplicates to the main 'log.log' file
+        stdlib_logger.propagate = False
+        
+        # 4. Only add the handler if it hasn't been added yet
+        if not stdlib_logger.handlers:
+            handler = logging.FileHandler(f"{name}.log")
+            handler.setFormatter(logging.Formatter("%(message)s"))
+            stdlib_logger.addHandler(handler)
+        
+    # FIX: Pass 'name' as a positional argument so structlog targets the correct stdlib logger
+    return structlog.get_logger(name)

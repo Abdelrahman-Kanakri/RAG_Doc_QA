@@ -17,7 +17,7 @@ import os
 from typing import List
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
-
+from langchain_core.output_parsers import StrOutputParser
 from langchain_mistralai import ChatMistralAI
 from langchain_chroma import Chroma
 from app.core import settings
