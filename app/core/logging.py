@@ -65,3 +65,23 @@ def get_logger(name: str | None = None) -> FilteringBoundLogger:
             
     # 4. Return the structlog wrapper so you can use it normally
     return structlog.get_logger(name)
+
+
+    if name:
+        # 1. Get the underlying standard library logger
+        stdlib_logger = logging.getLogger(name)
+        
+        # 2. Set the logging level explicitly so INFO logs aren't ignored
+        stdlib_logger.setLevel(logging.INFO)
+        
+        # 3. Stop this specific logger from sending duplicates to the main 'log.log' file
+        stdlib_logger.propagate = False
+        
+        # 4. Only add the handler if it hasn't been added yet
+        if not stdlib_logger.handlers:
+            handler = logging.FileHandler(f"{name}.log")
+            handler.setFormatter(logging.Formatter("%(message)s"))
+            stdlib_logger.addHandler(handler)
+        
+    # FIX: Pass 'name' as a positional argument so structlog targets the correct stdlib logger
+    return structlog.get_logger(name)
