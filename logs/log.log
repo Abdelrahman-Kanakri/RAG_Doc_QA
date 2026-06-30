@@ -1,5 +1,5 @@
-2026-06-26 21:22:19,431 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/mistralai/Mixtral-8x7B-v0.1/resolve/main/tokenizer.json "HTTP/1.1 307 Temporary Redirect"
-2026-06-26 21:22:19,501 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/mistralai/Mixtral-8x7B-v0.1/fc7ac94680e38d7348cfa806e51218e6273104b0/tokenizer.json "HTTP/1.1 200 OK"
-2026-06-26 21:23:52,890 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/mistralai/Mixtral-8x7B-v0.1/resolve/main/tokenizer.json "HTTP/1.1 307 Temporary Redirect"
-2026-06-26 21:23:53,037 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/mistralai/Mixtral-8x7B-v0.1/fc7ac94680e38d7348cfa806e51218e6273104b0/tokenizer.json "HTTP/1.1 200 OK"
-HTTP Request: HEAD https://example.com
+HTTP Request: HEAD https://huggingface.co/mistralai/Mixtral-8x7B-v0.1/resolve/main/tokenizer.json "HTTP/1.1 307 Temporary Redirect"
+HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/mistralai/Mixtral-8x7B-v0.1/fc7ac94680e38d7348cfa806e51218e6273104b0/tokenizer.json "HTTP/1.1 200 OK"
+HTTP Request: POST https://api.mistral.ai/v1/embeddings "HTTP/1.1 200 OK"
+{"foo": "bar", "event": "app_event_unnamed", "level": "info", "logger": "app", "timestamp": "2026-06-30T14:33:10.587182Z"}
+2026-06-30 17:33:10,594 - httpx - INFO - HTTP Request: POST https://example.com "HTTP/1.1 200 OK"
