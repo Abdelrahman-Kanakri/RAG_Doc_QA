@@ -1,7 +1,5 @@
 """Structured JSON logging configuration using structlog."""
 
-import os
-import sys
 import logging
 import structlog
 from structlog.types import FilteringBoundLogger
@@ -13,7 +11,7 @@ LOG_DIR.mkdir(exist_ok=True)
 
 
 # Make the _json_formatter and _root_handler available for other modules if needed
-_json_formatter = structlog.Formatter("%(message)s")
+_json_formatter = logging.Formatter("%(message)s")
 # First, create the filehandler
 _root_handler = logging.FileHandler(LOG_DIR / "log.log")
 # then append the _json_formatter to the handler
